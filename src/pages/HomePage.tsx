@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, TowerControl as GameController, Lightbulb, Award } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import FeaturedGames from '../components/FeaturedGames';
@@ -15,28 +15,91 @@ const HomePage: React.FC = () => {
     { icon: <Award size={40} className="text-red-500" />, title: "Achievements", description: "Earn badges and track your learning progress" }
   ];
 
+  // Animation variants for page mount
+  const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  // Floating animation for feature cards
+  const floatingAnimation = {
+    y: [0, -10, 0],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  };
+
   return (
-    <div className="overflow-hidden">
+    <motion.div 
+      className="overflow-hidden relative"
+      initial="initial"
+      animate="animate"
+      variants={pageVariants}
+    >
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-4 h-4 bg-indigo-500 rounded-full opacity-10"
+            initial={{ x: Math.random() * 100 + "%", y: "100%" }}
+            animate={{
+              y: ["-100%", "100%"],
+              x: [
+                `${Math.random() * 100}%`,
+                `${Math.random() * 100}%`,
+                `${Math.random() * 100}%`
+              ]
+            }}
+            transition={{
+              duration: Math.random() * 10 + 10,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+        ))}
+      </div>
+
       <HeroSection />
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white/90 relative z-10">
         <div className="container mx-auto px-4">
-          <motion.h2 className="text-4xl font-bold text-center mb-12 text-indigo-700"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}>
+          <motion.h2 
+            className="text-4xl font-bold text-center mb-12 text-indigo-700"
+            variants={pageVariants}
+          >
             Learn, Play, Grow!
           </motion.h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <motion.div key={index}
+              <motion.div 
+                key={index}
                 className="bg-white rounded-xl p-6 shadow-lg border-2 border-blue-100 hover:border-blue-300 transition-all"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}>
-                <div className="mb-4 flex justify-center">{feature.icon}</div>
+                variants={pageVariants}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                animate={floatingAnimation}
+              >
+                <motion.div 
+                  className="mb-4 flex justify-center"
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {feature.icon}
+                </motion.div>
                 <h3 className="text-xl font-bold text-center mb-2 text-gray-800">{feature.title}</h3>
                 <p className="text-center text-gray-600">{feature.description}</p>
               </motion.div>
@@ -82,13 +145,39 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <motion.h2 className="text-4xl font-bold mb-6"
+      {/* Enhanced CTA Section with Particle Effect */}
+      <section className="py-16 bg-gradient-to-r from-purple-600 to-indigo-600 text-white relative overflow-hidden">
+        <div className="absolute inset-0">
+          {[...Array(30)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-white rounded-full"
+              initial={{ 
+                x: Math.random() * 100 + "vw",
+                y: Math.random() * 100 + "vh",
+                scale: 0
+              }}
+              animate={{ 
+                scale: [0, 1, 0],
+                opacity: [0, 1, 0]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                delay: i * 0.2,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+        </div>
+        
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <motion.h2 
+            className="text-4xl font-bold mb-6"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}>
+            transition={{ duration: 0.5 }}
+          >
             Ready to Start the Learning Adventure?
           </motion.h2>
           <motion.p className="text-xl mb-8 max-w-2xl mx-auto"
@@ -120,8 +209,6 @@ const HomePage: React.FC = () => {
           </motion.div>
         </div>
       </section>
-
-      {/* NEW SECTIONS */}
 
       {/* Why Choose EduPlay */}
       <section className="py-20 bg-gray-50">
@@ -157,7 +244,7 @@ const HomePage: React.FC = () => {
           </div>
           <div>
             <h2 className="text-4xl font-bold text-indigo-800 mb-4">Parental Dashboard</h2>
-            <p className="text-gray-700 text-lg mb-4">Keep track of your child’s learning journey, progress reports, achievements, and more in one easy-to-use dashboard.</p>
+            <p className="text-gray-700 text-lg mb-4">Keep track of your child's learning journey, progress reports, achievements, and more in one easy-to-use dashboard.</p>
             <Link to="/parents">
               <button className="bg-indigo-600 text-white font-bold px-6 py-3 rounded-full hover:bg-indigo-700 transition-all">
                 Learn More
@@ -216,8 +303,10 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-    </div>
+    </motion.div>
   );
 };
 
 export default HomePage;
+
+export default HomePage
